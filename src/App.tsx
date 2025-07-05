@@ -1,24 +1,20 @@
 import './App.css'
-import {useHelloWorldApi} from "./taskManagerApi/useHelloWorldApi.ts";
-import {LoginButton} from "./auth/LoginButton.tsx";
-import {LogoutButton} from "./auth/LogoutButton.tsx";
-import {useProtectedApi} from "./taskManagerApi/useProtectedApi.ts";
-import {useGetEntity} from "./taskManagerApi/useGetEntity.ts";
+import { useAuth0 } from "@auth0/auth0-react";
+import Login from "./components/Login";
+import Home from "./components/Home";
 
 function App() {
-    const {data, loading} = useHelloWorldApi()
-    const {data: privateData, loading: privateLoading} = useProtectedApi();
-    const {data: entityData, loading: entityLoading} = useGetEntity();
+    const { isAuthenticated, isLoading } = useAuth0();
 
-    return (
-        <>
-            <div>{data}</div>
-            <div>{privateData}</div>
-            <div>{entityData}</div>
-            {loading || privateLoading || entityLoading && <div>Loading...</div>}
-            <LoginButton /><LogoutButton />
-        </>
-    )
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    return isAuthenticated ? <Home /> : <Login />;
 }
 
 export default App
