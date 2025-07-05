@@ -58,10 +58,18 @@ const EditTaskModal = ({ isOpen, onClose, onTaskUpdated, task }: EditTaskModalPr
     effort: number;
     percent_completed: number;
   }) => {
-    const result = await updateTask(task.id, taskData);
-    if (result) {
-      onTaskUpdated();
-      onClose();
+    console.log('EditTaskModal handleSubmit called with data:', taskData);
+    try {
+      const result = await updateTask(task.id, taskData);
+      console.log('Update task result:', result);
+      if (result) {
+        onTaskUpdated();
+        onClose();
+      } else {
+        console.error('Update task returned null or undefined');
+      }
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
     }
   };
 
@@ -84,14 +92,14 @@ const EditTaskModal = ({ isOpen, onClose, onTaskUpdated, task }: EditTaskModalPr
             </svg>
           </button>
         </div>
-        
+
         <div className="p-4">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
               {error.message}
             </div>
           )}
-          
+
           <TaskForm 
             onSubmit={handleSubmit} 
             onCancel={onClose} 

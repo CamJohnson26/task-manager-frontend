@@ -60,8 +60,10 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted', mode);
 
     if (!validateForm()) {
+      console.log('Form validation failed');
       return;
     }
 
@@ -85,11 +87,24 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
       percent_completed: percentCompleted / 100,
     };
 
-    await onSubmit(taskData);
+    console.log('Submitting task data', taskData);
+    try {
+      await onSubmit(taskData);
+      console.log('Task submitted successfully');
+    } catch (error) {
+      console.error('Error submitting task', error);
+    }
   };
 
+  // Log when component renders
+  console.log('TaskForm rendering', { mode, isSubmitting });
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={(e) => {
+      // Prevent the default form submission since we're handling it manually with the button
+      e.preventDefault();
+      console.log('Form onSubmit prevented');
+    }} className="space-y-4">
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
           Title <span className="text-red-500">*</span>
@@ -233,9 +248,46 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
           Cancel
         </button>
         <button
-          type="submit"
+          type="button" // Changed from submit to button to handle submission manually
           className="px-4 py-2 bg-[#8B0000] hover:bg-[#a30000] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B0000] disabled:opacity-50"
           disabled={isSubmitting}
+          onClick={async (e) => {
+            e.preventDefault(); // Prevent default button behavior
+            console.log('Submit button clicked manually');
+
+            if (!validateForm()) {
+              console.log('Form validation failed');
+              return;
+            }
+
+            // Convert local date to UTC timestamp if due date is provided
+            let utcDueDate: string | undefined;
+            if (dueDate) {
+              // Create a date object at midnight local time
+              const dateObj = new Date(dueDate + 'T00:00:00');
+              // Convert to ISO string which includes the UTC timestamp
+              utcDueDate = dateObj.toISOString();
+            }
+
+            const taskData = {
+              title,
+              description,
+              type,
+              ...(utcDueDate ? { due_date: utcDueDate } : {}),
+              priority,
+              status,
+              effort,
+              percent_completed: percentCompleted / 100,
+            };
+
+            console.log('Manually submitting task data', taskData);
+            try {
+              await onSubmit(taskData);
+              console.log('Task submitted successfully');
+            } catch (error) {
+              console.error('Error submitting task', error);
+            }
+          }}
         >
           {isSubmitting 
             ? (mode === 'edit' ? "Updating..." : "Creating...") 
