@@ -12,7 +12,6 @@ const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
   const { user } = useAuth0();
   const { user: meUser } = useGetMe();
   const isAdmin = meUser?.[3] === true;
-console.log('Navbar meUser:', meUser);
   return (
     <header className="bg-white p-4 rounded-lg shadow-md mb-6">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
