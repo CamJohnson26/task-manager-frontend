@@ -36,16 +36,32 @@ export const useGetMe = () => {
                             'Content-Type': 'application/json',
                         },
                     });
-                    
+
                     if (!response.ok) {
+                        // Don't try to parse JSON for error responses
+                        // This prevents JSON parse errors from flashing
                         throw new Error('User not approved');
                     }
-                    
-                    const userData = await response.json();
-                    setUser(userData);
+
+                    try {
+                        // Only try to parse JSON for successful responses
+                        // Wrap in try/catch to handle any JSON parse errors silently
+                        const userData = await response.json();
+                        setUser(userData);
+                    } catch (jsonError) {
+                        // Handle JSON parse errors silently
+                        if (import.meta.env.DEV) {
+                            console.error('JSON parse error:', jsonError);
+                        }
+                        throw new Error('Invalid response format');
+                    }
                 }
             } catch (error) {
-                console.error('Error:', error);
+                // Silently handle the error to prevent flashing error messages
+                // Only log to console in development environment
+                if (import.meta.env.DEV) {
+                    console.error('Error:', error);
+                }
                 setError(error instanceof Error ? error : new Error('Unknown error'));
             } finally {
                 setLoading(false);
