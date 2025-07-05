@@ -33,18 +33,23 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
   const getCircleSize = (task: Task): number => {
     const remainingEffort = getRemainingEffort(task);
     const urgency = getUrgency(task);
+    const priority = task.priority;
 
     // Base size between 10-50 based on remaining effort (1-10)
     const baseSize = 10 + (remainingEffort * 4);
 
-    // Increase size based on urgency (up to 50% larger for most urgent tasks)
-    return baseSize * (1 + (urgency * 0.5));
+    // Increase size based on urgency (up to 100% larger for most urgent tasks)
+    // Also factor in priority (higher priority = larger)
+    const urgencyFactor = urgency * 1.0; // Doubled from 0.5 to 1.0
+    const priorityFactor = (priority - 1) / 3 * 0.5; // Additional 0-50% based on priority
+
+    return baseSize * (1 + urgencyFactor + priorityFactor);
   };
 
   // Get opacity based on priority (higher priority = more opaque)
   const getOpacity = (task: Task): number => {
-    // Priority is 1-4, normalize to 0.4-1 range
-    return 0.4 + ((task.priority - 1) / 3) * 0.6;
+    // Priority is 1-4, normalize to 0.6-1 range (darker overall)
+    return 0.6 + ((task.priority - 1) / 3) * 0.4;
   };
 
   // Make all tasks red as per requirements
@@ -77,6 +82,7 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
       .append('g')
       .style('cursor', 'pointer')
       .on('click', (event, d) => {
+        // Just select the task without applying any force
         onTaskSelect(d);
       });
 
@@ -88,14 +94,58 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
       .attr('stroke', d => d.id === selectedTaskId ? '#8B0000' : 'none')
       .attr('stroke-width', d => d.id === selectedTaskId ? 3 : 0);
 
-    // Add text labels to each group
-    taskGroups.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '.3em')
-      .attr('fill', 'white')
-      .attr('font-size', d => Math.max(10, getCircleSize(d) / 3))
-      .attr('pointer-events', 'none')
-      .text(d => d.title.length > 10 ? d.title.substring(0, 10) + '...' : d.title);
+    // Add multi-line text labels to each group (up to 3 lines)
+    taskGroups.each(function(d) {
+      const group = d3.select(this);
+      const fontSize = Math.max(10, getCircleSize(d) / 3);
+      const title = d.title;
+
+      // Calculate how many characters can fit per line based on circle size
+      const charsPerLine = Math.max(8, Math.floor(getCircleSize(d) / (fontSize * 0.6)));
+
+      // Split text into words
+      const words = title.split(/\s+/);
+      let lines = [];
+      let currentLine = '';
+
+      // Create lines of text
+      words.forEach(word => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        if (testLine.length <= charsPerLine) {
+          currentLine = testLine;
+        } else {
+          lines.push(currentLine);
+          currentLine = word;
+        }
+      });
+
+      // Add the last line
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      // Limit to 3 lines
+      if (lines.length > 3) {
+        lines = lines.slice(0, 3);
+        // Add ellipsis to the last line if it was truncated
+        if (lines[2].length > charsPerLine - 3) {
+          lines[2] = lines[2].substring(0, charsPerLine - 3) + '...';
+        } else {
+          lines[2] += '...';
+        }
+      }
+
+      // Add each line as a separate text element
+      lines.forEach((line, i) => {
+        group.append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dy', `${(i - (lines.length - 1) / 2) * 1.2 + 0.3}em`) // Position lines vertically
+          .attr('fill', 'white')
+          .attr('font-size', fontSize)
+          .attr('pointer-events', 'none')
+          .text(line);
+      });
+    });
 
     // Add tooltips
     taskGroups.append('title')
@@ -118,6 +168,12 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
         return `translate(${d.x},${d.y})`;
       });
     });
+
+    // Stop the simulation after a short time to prevent movement after initial positioning
+    // This removes any force application after the initial layout
+    setTimeout(() => {
+      simulation.stop();
+    }, 2000);
 
     // Cleanup
     return () => {
