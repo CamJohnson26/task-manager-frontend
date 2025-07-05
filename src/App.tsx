@@ -7,7 +7,7 @@ import { useGetMe } from "./taskManagerApi/useGetMe";
 
 function App() {
     const { isAuthenticated, isLoading } = useAuth0();
-    const { loading: userLoading, error: userError } = useGetMe();
+    const { user, loading: userLoading, error: userError } = useGetMe();
 
     // Show loading spinner while authentication or user data is loading
     if (isLoading || (isAuthenticated && userLoading)) {
@@ -24,7 +24,7 @@ function App() {
     }
 
     // If authenticated but user is not approved, show approval pending page
-    if (userError) {
+    if (userError || user?.[4] !== true) {
         return <ApprovalPending />;
     }
 
