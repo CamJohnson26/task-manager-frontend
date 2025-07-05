@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useGetTasks } from "../../taskManagerApi/useGetTasks";
 import TaskList from "./TaskList";
 import TaskDetail from "./TaskDetail";
+import NewTaskModal from "./NewTaskModal";
 import { type Task } from "../../types/Task";
 
 const Tasks = () => {
-  const { tasks, loading, error } = useGetTasks();
+  const { tasks, loading, error, refetch } = useGetTasks();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
 
   const handleTaskSelect = (task: Task) => {
     setSelectedTask(task);
@@ -17,6 +19,19 @@ const Tasks = () => {
   const handleCloseDetail = () => {
     setDetailOpen(false);
   };
+
+  const handleOpenNewTaskModal = () => {
+    setIsNewTaskModalOpen(true);
+  };
+
+  const handleCloseNewTaskModal = () => {
+    setIsNewTaskModalOpen(false);
+  };
+
+  const handleTaskCreated = useCallback(() => {
+    // Refetch tasks after a new task is created
+    refetch();
+  }, [refetch]);
 
   if (loading) {
     return (
@@ -65,6 +80,24 @@ const Tasks = () => {
           />
         </div>
       </div>
+
+      {/* Floating action button */}
+      <button
+        onClick={handleOpenNewTaskModal}
+        className="fixed right-6 bottom-6 w-14 h-14 rounded-full bg-[#8B0000] hover:bg-[#a30000] text-white shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B0000] transition-all duration-300 z-10"
+        aria-label="Create new task"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+      </button>
+
+      {/* New task modal */}
+      <NewTaskModal
+        isOpen={isNewTaskModalOpen}
+        onClose={handleCloseNewTaskModal}
+        onTaskCreated={handleTaskCreated}
+      />
     </div>
   );
 };

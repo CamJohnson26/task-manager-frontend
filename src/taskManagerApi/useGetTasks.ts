@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { type Task } from "../types/Task";
 
@@ -12,62 +12,65 @@ export const useGetTasks = () => {
         isAuthenticated,
     } = useAuth0();
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                if (auth0Loading || !isAuthenticated) {
-                    console.log('Auth failed', auth0Loading, isAuthenticated);
-                    return;
-                }
+    const fetchTasks = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            if (auth0Loading || !isAuthenticated) {
+                console.log('Auth failed', auth0Loading, isAuthenticated);
+                return;
+            }
 
-                const token = await getAccessTokenSilently({
-                    authorizationParams: {
-                        audience: import.meta.env.VITE_WORKER_API_AUDIENCE,
-                    }
+            const token = await getAccessTokenSilently({
+                authorizationParams: {
+                    audience: import.meta.env.VITE_WORKER_API_AUDIENCE,
+                }
+            });
+
+            const path = '/tasks';
+
+            if (import.meta.env.VITE_WORKER_API_URL) {
+                const url = new URL(path, import.meta.env.VITE_WORKER_API_URL);
+                const response = await fetch(url, {
+                    cache: 'no-store',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
                 });
 
-                const path = '/tasks';
-
-                if (import.meta.env.VITE_WORKER_API_URL) {
-                    const url = new URL(path, import.meta.env.VITE_WORKER_API_URL);
-                    const response = await fetch(url, {
-                        cache: 'no-store',
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch tasks');
-                    }
-
-                    try {
-                        const tasksData = await response.json();
-                        setTasks(tasksData);
-                    } catch (jsonError) {
-                        if (import.meta.env.DEV) {
-                            console.error('JSON parse error:', jsonError);
-                        }
-                        throw new Error('Invalid response format');
-                    }
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tasks');
                 }
-            } catch (error) {
-                if (import.meta.env.DEV) {
-                    console.error('Error fetching tasks:', error);
+
+                try {
+                    const tasksData = await response.json();
+                    setTasks(tasksData);
+                } catch (jsonError) {
+                    if (import.meta.env.DEV) {
+                        console.error('JSON parse error:', jsonError);
+                    }
+                    throw new Error('Invalid response format');
                 }
-                setError(error instanceof Error ? error : new Error('Unknown error'));
-            } finally {
-                setLoading(false);
             }
-        };
-
-        void fetchTasks();
+        } catch (error) {
+            if (import.meta.env.DEV) {
+                console.error('Error fetching tasks:', error);
+            }
+            setError(error instanceof Error ? error : new Error('Unknown error'));
+        } finally {
+            setLoading(false);
+        }
     }, [auth0Loading, isAuthenticated, getAccessTokenSilently]);
+
+    useEffect(() => {
+        void fetchTasks();
+    }, [fetchTasks]);
 
     return {
         tasks,
         loading,
-        error
+        error,
+        refetch: fetchTasks
     };
 };
