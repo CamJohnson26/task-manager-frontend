@@ -8,8 +8,10 @@ export const Auth0ProviderWrapped = ({children}: PropsWithChildren) => {
         domain={import.meta.env.VITE_AUTH0_DOMAIN ?? ''}
         clientId={import.meta.env.VITE_AUTH0_CLIENT_ID ?? ''}
         authorizationParams={{
-            redirect_uri: window.location.href
+            redirect_uri: window.location.href,
+            audience: import.meta.env.VITE_WORKER_API_AUDIENCE,
         }}
+        useRefreshTokens={true}
     >
         {children}
     </Auth0Provider>
