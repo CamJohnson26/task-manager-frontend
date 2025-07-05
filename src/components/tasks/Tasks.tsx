@@ -36,31 +36,35 @@ const Tasks = () => {
 
   return (
     <div className="relative">
-      {/* Overlay that appears behind the detail panel when it's open */}
-      {detailOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-25 z-0 md:hidden"
-          onClick={handleCloseDetail}
-        ></div>
-      )}
-      
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
+      <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-md overflow-hidden" style={{ minHeight: 'calc(100vh - 200px)' }}>
+        {/* Task list - always visible on desktop, hidden when detail is open on mobile */}
+        <div className={`flex-shrink-0 flex-grow transition-all duration-300 ${detailOpen ? 'md:w-1/2 hidden md:block' : 'w-full'}`}>
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
+          </div>
+
+          <div className="h-[calc(100vh-260px)]">
+            <TaskList 
+              tasks={tasks} 
+              onTaskSelect={handleTaskSelect} 
+              selectedTaskId={selectedTask?.id || null} 
+            />
+          </div>
         </div>
-        
-        <TaskList 
-          tasks={tasks} 
-          onTaskSelect={handleTaskSelect} 
-          selectedTaskId={selectedTask?.id || null} 
-        />
+
+        {/* Task detail - slides in from right on desktop, replaces list on mobile */}
+        <div className={`flex-shrink-0 transition-all duration-300 overflow-hidden ${
+          detailOpen 
+            ? 'w-full md:w-1/2' 
+            : 'w-0 md:w-0 opacity-0'
+        }`}>
+          <TaskDetail 
+            task={selectedTask} 
+            onClose={handleCloseDetail} 
+            isOpen={detailOpen} 
+          />
+        </div>
       </div>
-      
-      <TaskDetail 
-        task={selectedTask} 
-        onClose={handleCloseDetail} 
-        isOpen={detailOpen} 
-      />
     </div>
   );
 };

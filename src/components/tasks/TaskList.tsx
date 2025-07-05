@@ -16,7 +16,7 @@ const TaskList = ({ tasks, onTaskSelect, selectedTaskId }: TaskListProps) => {
   }
 
   return (
-    <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
+    <div className="overflow-y-auto h-full">
       <ul className="divide-y divide-gray-200">
         {tasks.map((task) => (
           <li 

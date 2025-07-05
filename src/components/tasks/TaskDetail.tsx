@@ -11,24 +11,36 @@ const TaskDetail = ({ task, onClose, isOpen }: TaskDetailProps) => {
 
   return (
     <div 
-      className={`fixed inset-y-0 right-0 w-full md:w-1/2 lg:w-1/3 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-10 ${
+      className={`bg-white border-l border-gray-200 h-full transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
     >
       <div className="h-full flex flex-col overflow-hidden">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-          <h2 className="text-xl font-semibold text-gray-800">Task Details</h2>
+          <div className="flex items-center">
+            {/* Back button - only visible on mobile */}
+            <button 
+              onClick={onClose}
+              className="mr-2 text-gray-500 hover:text-gray-700 focus:outline-none md:hidden"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h2 className="text-xl font-semibold text-gray-800">Task Details</h2>
+          </div>
+          {/* Close button - only visible on desktop */}
           <button 
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-gray-500 hover:text-gray-700 focus:outline-none hidden md:block"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        
-        <div className="p-4 overflow-y-auto flex-grow">
+
+        <div className="p-4 overflow-y-auto flex-grow h-[calc(100vh-260px)]">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">{task.title}</h1>
             <div className="flex items-center space-x-2 mb-4">
@@ -39,12 +51,12 @@ const TaskDetail = ({ task, onClose, isOpen }: TaskDetailProps) => {
                 Priority: {getPriorityLabel(task.priority)}
               </span>
             </div>
-            
+
             <div className="bg-gray-50 p-4 rounded-md mb-4">
               <h3 className="text-sm font-medium text-gray-500 mb-2">DESCRIPTION</h3>
               <p className="text-gray-700 whitespace-pre-wrap">{task.description}</p>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Type</h3>
@@ -71,7 +83,7 @@ const TaskDetail = ({ task, onClose, isOpen }: TaskDetailProps) => {
                 <p className="text-xs text-gray-500 mt-1">{Math.round(task.percent_completed * 100)}%</p>
               </div>
             </div>
-            
+
             {task.last_completed && (
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Last Completed</h3>
