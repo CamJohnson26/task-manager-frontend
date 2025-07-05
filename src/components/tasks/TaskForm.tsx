@@ -1,4 +1,5 @@
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
+import { type Task } from "../../types/Task";
 
 interface TaskFormProps {
   onSubmit: (taskData: {
@@ -13,52 +14,77 @@ interface TaskFormProps {
   }) => Promise<void>;
   onCancel: () => void;
   isSubmitting: boolean;
+  initialData?: Task;
+  mode: 'create' | 'edit';
 }
 
-const TaskForm = ({ onSubmit, onCancel, isSubmitting }: TaskFormProps) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("task");
-  const [dueDate, setDueDate] = useState("");
-  const [priority, setPriority] = useState(2); // Medium priority by default
-  const [status, setStatus] = useState("pending");
-  const [effort, setEffort] = useState(1);
-  const [percentCompleted, setPercentCompleted] = useState(0);
+const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'create' }: TaskFormProps) => {
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [type, setType] = useState(initialData?.type || "task");
+  const [dueDate, setDueDate] = useState(initialData?.due_date ? initialData.due_date.split('T')[0] : "");
+  const [priority, setPriority] = useState(initialData?.priority || 2); // Medium priority by default
+  const [status, setStatus] = useState(initialData?.status || "pending");
+  const [effort, setEffort] = useState(initialData?.effort || 1);
+  const [percentCompleted, setPercentCompleted] = useState(initialData ? Math.round(initialData.percent_completed * 100) : 0);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Update form when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setDescription(initialData.description);
+      setType(initialData.type);
+      setDueDate(initialData.due_date ? initialData.due_date.split('T')[0] : "");
+      setPriority(initialData.priority);
+      setStatus(initialData.status);
+      setEffort(initialData.effort);
+      setPercentCompleted(Math.round(initialData.percent_completed * 100));
+    }
+  }, [initialData]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!title.trim()) {
       newErrors.title = "Title is required";
     }
-    
+
     if (!description.trim()) {
       newErrors.description = "Description is required";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
+    // Convert local date to UTC timestamp if due date is provided
+    let utcDueDate: string | undefined;
+    if (dueDate) {
+      // Create a date object at midnight local time
+      const dateObj = new Date(dueDate + 'T00:00:00');
+      // Convert to ISO string which includes the UTC timestamp
+      utcDueDate = dateObj.toISOString();
+    }
+
     const taskData = {
       title,
       description,
       type,
-      ...(dueDate ? { due_date: dueDate } : {}),
+      ...(utcDueDate ? { due_date: utcDueDate } : {}),
       priority,
       status,
       effort,
       percent_completed: percentCompleted / 100,
     };
-    
+
     await onSubmit(taskData);
   };
 
@@ -211,7 +237,10 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting }: TaskFormProps) => {
           className="px-4 py-2 bg-[#8B0000] hover:bg-[#a30000] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B0000] disabled:opacity-50"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Creating..." : "Create Task"}
+          {isSubmitting 
+            ? (mode === 'edit' ? "Updating..." : "Creating...") 
+            : (mode === 'edit' ? "Update Task" : "Create Task")
+          }
         </button>
       </div>
     </form>

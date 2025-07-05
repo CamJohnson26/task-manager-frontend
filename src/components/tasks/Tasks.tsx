@@ -3,6 +3,8 @@ import { useGetTasks } from "../../taskManagerApi/useGetTasks";
 import TaskList from "./TaskList";
 import TaskDetail from "./TaskDetail";
 import NewTaskModal from "./NewTaskModal";
+import EditTaskModal from "./EditTaskModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { type Task } from "../../types/Task";
 
 const Tasks = () => {
@@ -10,6 +12,10 @@ const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
   const handleTaskSelect = (task: Task) => {
     setSelectedTask(task);
@@ -31,6 +37,38 @@ const Tasks = () => {
   const handleTaskCreated = useCallback(() => {
     // Refetch tasks after a new task is created
     refetch();
+  }, [refetch]);
+
+  const handleEditTask = (task: Task) => {
+    setTaskToEdit(task);
+    setIsEditTaskModalOpen(true);
+  };
+
+  const handleCloseEditTaskModal = () => {
+    setIsEditTaskModalOpen(false);
+    setTaskToEdit(null);
+  };
+
+  const handleTaskUpdated = useCallback(() => {
+    // Refetch tasks after a task is updated
+    refetch();
+  }, [refetch]);
+
+  const handleDeleteTask = (task: Task) => {
+    setTaskToDelete(task);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setTaskToDelete(null);
+  };
+
+  const handleTaskDeleted = useCallback(() => {
+    // Refetch tasks after a task is deleted
+    refetch();
+    // Close the detail panel since the task no longer exists
+    setDetailOpen(false);
   }, [refetch]);
 
   if (loading) {
@@ -76,6 +114,8 @@ const Tasks = () => {
           <TaskDetail 
             task={selectedTask} 
             onClose={handleCloseDetail} 
+            onEdit={handleEditTask}
+            onDelete={handleDeleteTask}
             isOpen={detailOpen} 
           />
         </div>
@@ -98,6 +138,26 @@ const Tasks = () => {
         onClose={handleCloseNewTaskModal}
         onTaskCreated={handleTaskCreated}
       />
+
+      {/* Edit task modal */}
+      {taskToEdit && (
+        <EditTaskModal
+          isOpen={isEditTaskModalOpen}
+          onClose={handleCloseEditTaskModal}
+          onTaskUpdated={handleTaskUpdated}
+          task={taskToEdit}
+        />
+      )}
+
+      {/* Delete confirmation modal */}
+      {taskToDelete && (
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onTaskDeleted={handleTaskDeleted}
+          task={taskToDelete}
+        />
+      )}
     </div>
   );
 };

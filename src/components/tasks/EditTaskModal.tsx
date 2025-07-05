@@ -1,15 +1,17 @@
 import { useRef, useEffect } from "react";
 import TaskForm from "./TaskForm";
-import { useCreateTask } from "../../taskManagerApi/useCreateTask";
+import { useUpdateTask } from "../../taskManagerApi/useUpdateTask";
+import { type Task } from "../../types/Task";
 
-interface NewTaskModalProps {
+interface EditTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskCreated: () => void;
+  onTaskUpdated: () => void;
+  task: Task;
 }
 
-const NewTaskModal = ({ isOpen, onClose, onTaskCreated }: NewTaskModalProps) => {
-  const { createTask, loading, error } = useCreateTask();
+const EditTaskModal = ({ isOpen, onClose, onTaskUpdated, task }: EditTaskModalProps) => {
+  const { updateTask, loading, error } = useUpdateTask();
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Close modal when clicking outside
@@ -56,9 +58,9 @@ const NewTaskModal = ({ isOpen, onClose, onTaskCreated }: NewTaskModalProps) => 
     effort: number;
     percent_completed: number;
   }) => {
-    const result = await createTask(taskData);
+    const result = await updateTask(task.id, taskData);
     if (result) {
-      onTaskCreated();
+      onTaskUpdated();
       onClose();
     }
   };
@@ -72,7 +74,7 @@ const NewTaskModal = ({ isOpen, onClose, onTaskCreated }: NewTaskModalProps) => 
         className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="flex justify-between items-center p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Create New Task</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Edit Task</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -82,19 +84,20 @@ const NewTaskModal = ({ isOpen, onClose, onTaskCreated }: NewTaskModalProps) => 
             </svg>
           </button>
         </div>
-
+        
         <div className="p-4">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
               {error.message}
             </div>
           )}
-
+          
           <TaskForm 
             onSubmit={handleSubmit} 
             onCancel={onClose} 
             isSubmitting={loading}
-            mode="create"
+            initialData={task}
+            mode="edit"
           />
         </div>
       </div>
@@ -102,4 +105,4 @@ const NewTaskModal = ({ isOpen, onClose, onTaskCreated }: NewTaskModalProps) => 
   );
 };
 
-export default NewTaskModal;
+export default EditTaskModal;
