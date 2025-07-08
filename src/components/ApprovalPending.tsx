@@ -6,7 +6,7 @@ const ApprovalPending = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-7xl mx-auto">
         <header className="bg-white p-4 rounded-lg shadow-md mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-center">
             <div className="mb-4 sm:mb-0">

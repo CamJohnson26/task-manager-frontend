@@ -5,7 +5,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-lg">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Task Manager</h1>
         <p className="text-gray-600 text-center mb-8">
           Please log in to access your tasks

@@ -13,7 +13,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-7xl mx-auto">
         <Navbar activeTab={activeTab} onTabChange={handleTabChange} />
 
         {activeTab === "tasks" && <Tasks />}

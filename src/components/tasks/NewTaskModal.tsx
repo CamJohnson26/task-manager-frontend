@@ -69,7 +69,7 @@ const NewTaskModal = ({ isOpen, onClose, onTaskCreated }: NewTaskModalProps) => 
     <div className="fixed inset-0 z-[100] overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div 
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform translate-y-0"
+        className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform translate-y-0"
       >
         <div className="flex justify-between items-center p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">Create New Task</h2>
