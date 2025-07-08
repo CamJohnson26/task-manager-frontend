@@ -22,7 +22,20 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [type, setType] = useState(initialData?.type || "task");
-  const [dueDate, setDueDate] = useState(initialData?.due_date ? initialData.due_date.split('T')[0] : "");
+  // Parse and format the due date for the initial state
+  const [dueDate, setDueDate] = useState(() => {
+    if (initialData?.due_date) {
+      try {
+        const date = new Date(initialData.due_date);
+        if (!isNaN(date.getTime())) {
+          return date.toISOString().split('T')[0];
+        }
+      } catch (error) {
+        console.error('Error parsing initial date:', error);
+      }
+    }
+    return "";
+  });
   const [priority, setPriority] = useState(initialData?.priority || 2); // Medium priority by default
   const [status, setStatus] = useState(initialData?.status || "pending");
   const [effort, setEffort] = useState(initialData?.effort || 1);
@@ -35,7 +48,25 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
       setTitle(initialData.title);
       setDescription(initialData.description);
       setType(initialData.type);
-      setDueDate(initialData.due_date ? initialData.due_date.split('T')[0] : "");
+      // Ensure due_date is properly formatted before splitting
+      if (initialData.due_date) {
+        try {
+          // Try to parse the date and format it as YYYY-MM-DD
+          const date = new Date(initialData.due_date);
+          if (!isNaN(date.getTime())) {
+            const formattedDate = date.toISOString().split('T')[0];
+            setDueDate(formattedDate);
+          } else {
+            console.error('Invalid date format:', initialData.due_date);
+            setDueDate("");
+          }
+        } catch (error) {
+          console.error('Error parsing date:', error);
+          setDueDate("");
+        }
+      } else {
+        setDueDate("");
+      }
       setPriority(initialData.priority);
       setStatus(initialData.status);
       setEffort(initialData.effort);
