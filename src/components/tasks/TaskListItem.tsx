@@ -8,9 +8,10 @@ interface TaskListItemProps {
   onTaskSelect: (task: Task) => void;
   isSelected: boolean;
   onTaskUpdated: () => void;
+  onDeleteTask: (task: Task) => void;
 }
 
-const TaskListItem = ({ task, onTaskSelect, isSelected, onTaskUpdated }: TaskListItemProps) => {
+const TaskListItem = ({ task, onTaskSelect, isSelected, onTaskUpdated, onDeleteTask }: TaskListItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { updateTask, loading: updateLoading } = useUpdateTask();
 
@@ -113,9 +114,23 @@ const TaskListItem = ({ task, onTaskSelect, isSelected, onTaskUpdated }: TaskLis
             )}
           </div>
         </div>
-        <div className="mt-2 flex justify-between text-xs text-gray-500">
+        <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
           <span>Priority: {getPriorityLabel(task.priority)}</span>
-          <span>{Math.round(task.percent_completed * 100)}% complete</span>
+          <div className="flex items-center space-x-3">
+            <span>{Math.round(task.percent_completed * 100)}% complete</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent task selection
+                onDeleteTask(task);
+              }}
+              className="text-red-600 hover:text-red-800 focus:outline-none"
+              aria-label="Delete task"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 

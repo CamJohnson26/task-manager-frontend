@@ -102,6 +102,7 @@ const Tasks = () => {
               onTaskSelect={handleTaskSelect} 
               selectedTaskId={selectedTask?.id || null}
               onTaskUpdated={handleTaskUpdated}
+              onDeleteTask={handleDeleteTask}
             />
           </div>
         </div>

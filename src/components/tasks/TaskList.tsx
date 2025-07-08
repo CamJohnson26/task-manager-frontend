@@ -6,9 +6,10 @@ interface TaskListProps {
   onTaskSelect: (task: Task) => void;
   selectedTaskId: string | null;
   onTaskUpdated: () => void;
+  onDeleteTask: (task: Task) => void;
 }
 
-const TaskList = ({ tasks, onTaskSelect, selectedTaskId, onTaskUpdated }: TaskListProps) => {
+const TaskList = ({ tasks, onTaskSelect, selectedTaskId, onTaskUpdated, onDeleteTask }: TaskListProps) => {
   if (tasks.length === 0) {
     return (
       <div className="p-4 text-center text-gray-500">
@@ -27,6 +28,7 @@ const TaskList = ({ tasks, onTaskSelect, selectedTaskId, onTaskUpdated }: TaskLi
             onTaskSelect={onTaskSelect}
             isSelected={selectedTaskId === task.id}
             onTaskUpdated={onTaskUpdated}
+            onDeleteTask={onDeleteTask}
           />
         ))}
       </ul>

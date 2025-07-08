@@ -81,10 +81,6 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
       newErrors.title = "Title is required";
     }
 
-    if (!description.trim()) {
-      newErrors.description = "Description is required";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -155,7 +151,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description <span className="text-red-500">*</span>
+          Description
         </label>
         <textarea
           id="description"
