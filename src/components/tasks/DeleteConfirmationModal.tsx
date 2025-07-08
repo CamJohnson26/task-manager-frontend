@@ -58,24 +58,24 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onTaskDeleted, task }: Delet
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div 
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl w-full max-w-md"
+        className="bg-white rounded-lg shadow-xl w-full max-w-md transform translate-y-0"
       >
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Delete Task</h2>
-          
+
           <p className="text-gray-600 mb-6">
             Are you sure you want to delete the task "{task.title}"? This action cannot be undone.
           </p>
-          
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
               {error.message}
             </div>
           )}
-          
+
           <div className="flex justify-end space-x-3">
             <button
               onClick={onClose}

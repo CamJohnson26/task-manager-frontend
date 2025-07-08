@@ -100,7 +100,7 @@ const Tasks = () => {
     <div className="relative">
       <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-md overflow-hidden" style={{ minHeight: 'calc(100vh - 200px)' }}>
         {/* Visualization - on top for mobile, left pane for desktop */}
-        <div className="w-full md:w-1/3 md:border-r border-gray-200 flex flex-col">
+        <div className="w-full md:w-1/2 md:border-r border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">Task Visualization</h2>
           </div>
@@ -114,14 +114,14 @@ const Tasks = () => {
         </div>
 
         {/* Task list and detail - below visualization on mobile, right pane on desktop */}
-        <div className="w-full md:w-2/3 flex flex-col">
+        <div className="w-full md:w-1/2 flex flex-col md:flex-row">
           {/* Task list - always visible on desktop, hidden when detail is open on mobile */}
-          <div className={`flex-shrink-0 flex-grow transition-all duration-300 ${detailOpen ? 'md:w-1/2 hidden md:block' : 'w-full'}`}>
+          <div className={`flex-shrink-0 md:min-w-[200px] transition-all duration-300 ${detailOpen ? 'md:w-1/2 hidden md:block md:border-r border-gray-200' : 'w-full'}`}>
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
             </div>
 
-            <div className="h-[calc(100vh-260px)]">
+            <div className="h-[calc(100vh-260px)] md:overflow-y-auto">
               <TaskList 
                 tasks={tasks} 
                 onTaskSelect={handleTaskSelect} 
@@ -131,7 +131,7 @@ const Tasks = () => {
           </div>
 
           {/* Task detail - slides in from right on desktop, replaces list on mobile */}
-          <div className={`flex-shrink-0 transition-all duration-300 overflow-hidden ${
+          <div className={`flex-shrink-0 md:min-w-[200px] transition-all duration-300 overflow-hidden ${
             detailOpen 
               ? 'w-full md:w-1/2' 
               : 'w-0 md:w-0 opacity-0'
