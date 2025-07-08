@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { type Task } from "../../types/Task";
+import TaskForm from "./TaskForm";
+import { useUpdateTask } from "../../taskManagerApi/useUpdateTask";
 
 interface TaskDetailProps {
   task: Task | null;
@@ -6,10 +9,45 @@ interface TaskDetailProps {
   onEdit?: (task: Task) => void;
   onDelete?: (task: Task) => void;
   isOpen: boolean;
+  onTaskUpdated?: () => void;
 }
 
-const TaskDetail = ({ task, onClose, onEdit, onDelete, isOpen }: TaskDetailProps) => {
+const TaskDetail = ({ task, onClose, onEdit, onDelete, isOpen, onTaskUpdated }: TaskDetailProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const { updateTask, loading: updateLoading } = useUpdateTask();
+
   if (!task) return null;
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSubmit = async (taskData: {
+    title: string;
+    description: string;
+    type: string;
+    due_date?: string;
+    priority: number;
+    status: string;
+    effort: number;
+    percent_completed: number;
+  }) => {
+    try {
+      const result = await updateTask(task.id, taskData);
+      if (result) {
+        if (onTaskUpdated) {
+          onTaskUpdated();
+        }
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
 
   return (
     <div 
@@ -33,9 +71,9 @@ const TaskDetail = ({ task, onClose, onEdit, onDelete, isOpen }: TaskDetailProps
           </div>
           <div className="flex items-center space-x-2">
             {/* Edit button */}
-            {onEdit && (
+            {!isEditing && (
               <button 
-                onClick={() => onEdit(task)}
+                onClick={handleEditClick}
                 className="text-gray-500 hover:text-gray-700 focus:outline-none"
                 aria-label="Edit task"
               >
@@ -70,56 +108,66 @@ const TaskDetail = ({ task, onClose, onEdit, onDelete, isOpen }: TaskDetailProps
         </div>
 
         <div className="p-4 overflow-y-auto flex-grow h-[calc(100vh-260px)]">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">{task.title}</h1>
-            <div className="flex items-center space-x-2 mb-4">
-              <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(task.status)}`}>
-                {task.status}
-              </span>
-              <span className="text-sm text-gray-500">
-                Priority: {getPriorityLabel(task.priority)}
-              </span>
-            </div>
+          {isEditing ? (
+            <TaskForm
+              onSubmit={handleSubmit}
+              onCancel={handleCancelEdit}
+              isSubmitting={updateLoading}
+              initialData={task}
+              mode="edit"
+            />
+          ) : (
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{task.title}</h1>
+              <div className="flex items-center space-x-2 mb-4">
+                <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(task.status)}`}>
+                  {task.status}
+                </span>
+                <span className="text-sm text-gray-500">
+                  Priority: {getPriorityLabel(task.priority)}
+                </span>
+              </div>
 
-            <div className="bg-gray-50 p-4 rounded-md mb-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">DESCRIPTION</h3>
-              <p className="text-gray-700 whitespace-pre-wrap">{task.description}</p>
-            </div>
+              <div className="bg-gray-50 p-4 rounded-md mb-4">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">DESCRIPTION</h3>
+                <p className="text-gray-700 whitespace-pre-wrap">{task.description}</p>
+              </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Type</h3>
-                <p className="text-gray-700">{task.type || 'Not specified'}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Due Date</h3>
-                <p className="text-gray-700">
-                  {task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date'}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Effort</h3>
-                <p className="text-gray-700">{task.effort || 'Not specified'}</p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Completion</h3>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-[#8B0000] h-2.5 rounded-full" 
-                    style={{ width: `${Math.round(task.percent_completed * 100)}%` }}
-                  ></div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Type</h3>
+                  <p className="text-gray-700">{task.type || 'Not specified'}</p>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{Math.round(task.percent_completed * 100)}%</p>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Due Date</h3>
+                  <p className="text-gray-700">
+                    {task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date'}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Effort</h3>
+                  <p className="text-gray-700">{task.effort || 'Not specified'}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Completion</h3>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-[#8B0000] h-2.5 rounded-full" 
+                      style={{ width: `${Math.round(task.percent_completed * 100)}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{Math.round(task.percent_completed * 100)}%</p>
+                </div>
               </div>
-            </div>
 
-            {task.last_completed && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Last Completed</h3>
-                <p className="text-gray-700">{new Date(task.last_completed).toLocaleString()}</p>
-              </div>
-            )}
-          </div>
+              {task.last_completed && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Last Completed</h3>
+                  <p className="text-gray-700">{new Date(task.last_completed).toLocaleString()}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

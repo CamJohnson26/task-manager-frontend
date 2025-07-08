@@ -1,9 +1,7 @@
 import { useState, useCallback } from "react";
 import { useGetTasks } from "../../taskManagerApi/useGetTasks";
 import TaskList from "./TaskList";
-import TaskDetail from "./TaskDetail";
 import NewTaskModal from "./NewTaskModal";
-import EditTaskModal from "./EditTaskModal";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import TaskVisualization from "./TaskVisualization";
 import { type Task } from "../../types/Task";
@@ -11,21 +9,13 @@ import { type Task } from "../../types/Task";
 const Tasks = () => {
   const { tasks, loading, error, refetch } = useGetTasks();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
-  const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'visualization'>('list');
 
   const handleTaskSelect = (task: Task) => {
     setSelectedTask(task);
-    setDetailOpen(true);
-  };
-
-  const handleCloseDetail = () => {
-    setDetailOpen(false);
   };
 
   const handleOpenNewTaskModal = () => {
@@ -41,17 +31,6 @@ const Tasks = () => {
     refetch();
   }, [refetch]);
 
-  const handleEditTask = (task: Task) => {
-    console.log('handleEditTask called with task:', task);
-    setTaskToEdit(task);
-    setIsEditTaskModalOpen(true);
-  };
-
-  const handleCloseEditTaskModal = () => {
-    console.log('handleCloseEditTaskModal called');
-    setIsEditTaskModalOpen(false);
-    setTaskToEdit(null);
-  };
 
   const handleTaskUpdated = useCallback(() => {
     console.log('handleTaskUpdated called');
@@ -72,8 +51,6 @@ const Tasks = () => {
   const handleTaskDeleted = useCallback(() => {
     // Refetch tasks after a task is deleted
     refetch();
-    // Close the detail panel since the task no longer exists
-    setDetailOpen(false);
   }, [refetch]);
 
   const toggleViewMode = () => {
@@ -113,35 +90,18 @@ const Tasks = () => {
           </div>
         </div>
 
-        {/* Task list and detail - below visualization on mobile, right pane on desktop */}
-        <div className="w-full md:w-1/2 flex flex-col md:flex-row">
-          {/* Task list - always visible on desktop, hidden when detail is open on mobile */}
-          <div className={`flex-shrink-0 md:min-w-[200px] transition-all duration-300 ${detailOpen ? 'md:w-1/2 hidden md:block md:border-r border-gray-200' : 'w-full'}`}>
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
-            </div>
-
-            <div className="h-[calc(100vh-260px)] md:overflow-y-auto">
-              <TaskList 
-                tasks={tasks} 
-                onTaskSelect={handleTaskSelect} 
-                selectedTaskId={selectedTask?.id || null} 
-              />
-            </div>
+        {/* Task list - below visualization on mobile, right pane on desktop */}
+        <div className="w-full md:w-1/2 flex flex-col">
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
           </div>
 
-          {/* Task detail - slides in from right on desktop, replaces list on mobile */}
-          <div className={`flex-shrink-0 md:min-w-[200px] transition-all duration-300 overflow-hidden ${
-            detailOpen 
-              ? 'w-full md:w-1/2' 
-              : 'w-0 md:w-0 opacity-0'
-          }`}>
-            <TaskDetail 
-              task={selectedTask} 
-              onClose={handleCloseDetail} 
-              onEdit={handleEditTask}
-              onDelete={handleDeleteTask}
-              isOpen={detailOpen} 
+          <div className="h-[calc(100vh-260px)] md:overflow-y-auto">
+            <TaskList 
+              tasks={tasks} 
+              onTaskSelect={handleTaskSelect} 
+              selectedTaskId={selectedTask?.id || null}
+              onTaskUpdated={handleTaskUpdated}
             />
           </div>
         </div>
@@ -165,15 +125,6 @@ const Tasks = () => {
         onTaskCreated={handleTaskCreated}
       />
 
-      {/* Edit task modal */}
-      {taskToEdit && (
-        <EditTaskModal
-          isOpen={isEditTaskModalOpen}
-          onClose={handleCloseEditTaskModal}
-          onTaskUpdated={handleTaskUpdated}
-          task={taskToEdit}
-        />
-      )}
 
       {/* Delete confirmation modal */}
       {taskToDelete && (
