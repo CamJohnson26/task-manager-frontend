@@ -11,6 +11,7 @@ interface CreateTaskInput {
   status: string;
   effort: number;
   percent_completed: number;
+  interval?: number;
 }
 
 export const useCreateTask = () => {
@@ -24,7 +25,7 @@ export const useCreateTask = () => {
   const createTask = async (taskData: CreateTaskInput): Promise<Task | null> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       if (!isAuthenticated) {
         throw new Error('User not authenticated');

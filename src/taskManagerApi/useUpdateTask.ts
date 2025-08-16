@@ -12,6 +12,7 @@ interface UpdateTaskInput {
   effort: number;
   percent_completed: number;
   completed_at?: string | null;
+  interval?: number;
 }
 
 export const useUpdateTask = () => {

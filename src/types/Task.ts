@@ -11,4 +11,5 @@ export interface Task {
   percent_completed: number;
   last_completed: string;
   completed_at?: string | null;
+  interval?: number;
 }

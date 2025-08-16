@@ -11,6 +11,7 @@ interface TaskFormProps {
     status: string;
     effort: number;
     percent_completed: number;
+    interval?: number;
   }) => Promise<void>;
   onCancel: () => void;
   isSubmitting: boolean;
@@ -40,6 +41,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
   const [status, setStatus] = useState(initialData?.status || "pending");
   const [effort, setEffort] = useState(initialData?.effort || 1);
   const [percentCompleted, setPercentCompleted] = useState(initialData ? Math.round(initialData.percent_completed) : 0);
+  const [interval, setInterval] = useState<number | undefined>(initialData?.interval);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Update form when initialData changes
@@ -71,6 +73,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
       setStatus(initialData.status);
       setEffort(initialData.effort);
       setPercentCompleted(Math.round(initialData.percent_completed));
+      setInterval(initialData.interval);
     }
   }, [initialData]);
 
@@ -79,6 +82,10 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
 
     if (!title.trim()) {
       newErrors.title = "Title is required";
+    }
+
+    if (type === "recurring_interval" && (interval === undefined || interval <= 0)) {
+      newErrors.interval = "Interval is required for Recurring Interval tasks and must be greater than 0";
     }
 
     setErrors(newErrors);
@@ -112,6 +119,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
       status,
       effort,
       percent_completed: percentCompleted,
+      ...(type === "recurring_interval" ? { interval } : {}),
     };
 
     console.log('Submitting task data', taskData);
@@ -199,6 +207,26 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
           />
         </div>
       </div>
+
+      {type === "recurring_interval" && (
+        <div>
+          <label htmlFor="interval" className="block text-sm font-medium text-gray-700 mb-1">
+            Interval (days) <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            id="interval"
+            min="1"
+            value={interval || ""}
+            onChange={(e) => setInterval(e.target.value ? Number(e.target.value) : undefined)}
+            className={`w-full px-3 py-2 border rounded-md ${
+              errors.interval ? "border-red-500" : "border-gray-300"
+            } focus:outline-none focus:ring-1 focus:ring-[#8B0000]`}
+            placeholder="Enter interval in days"
+          />
+          {errors.interval && <p className="mt-1 text-sm text-red-500">{errors.interval}</p>}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -307,6 +335,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
               status,
               effort,
               percent_completed: percentCompleted,
+              ...(type === "recurring_interval" ? { interval } : {}),
             };
 
             console.log('Manually submitting task data', taskData);
