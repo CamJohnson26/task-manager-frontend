@@ -8,7 +8,7 @@ interface TaskVisualizationProps {
   selectedTaskId: string | null;
 }
 
-const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualizationProps) => {
+const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [simulationComplete, setSimulationComplete] = useState(false);
 
@@ -60,6 +60,9 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
 
   useEffect(() => {
     // Reset simulation state when tasks or selectedTaskId changes
+    if (simulationComplete) {
+      return
+    }
     setSimulationComplete(false);
 
     if (!svgRef.current || tasks.length === 0) return;
@@ -95,8 +98,8 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
       .attr('r', d => getCircleSize(d))
       .attr('fill', d => getColor(d))
       .attr('opacity', d => getOpacity(d))
-      .attr('stroke', d => d.id === selectedTaskId ? '#8B0000' : 'none')
-      .attr('stroke-width', d => d.id === selectedTaskId ? 3 : 0);
+      .attr('stroke', d => 'none')
+      .attr('stroke-width', d => d.id === 1);
 
     // Add multi-line text labels to each group (up to 3 lines)
     taskGroups.each(function(d) {
@@ -184,7 +187,7 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
     return () => {
       simulation.stop();
     };
-  }, [tasks, selectedTaskId, onTaskSelect]);
+  }, [tasks, onTaskSelect, simulationComplete]);
 
   return (
     <div className="w-full h-full">
