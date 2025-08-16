@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import Tasks from "./tasks/Tasks";
+import CompletedTasks from "./tasks/CompletedTasks";
 import Admin from "./Admin";
 import Navbar from "./Navbar";
 
@@ -17,6 +18,7 @@ const Home = () => {
         <Navbar activeTab={activeTab} onTabChange={handleTabChange} />
 
         {activeTab === "tasks" && <Tasks />}
+        {activeTab === "completed" && <CompletedTasks />}
         {activeTab === "admin" && <Admin />}
       </div>
     </div>

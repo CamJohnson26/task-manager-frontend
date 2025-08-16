@@ -43,6 +43,24 @@ const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
           )}
         </a>
 
+        <a
+          href="#"
+          className={`py-3 px-3 text-sm font-medium transition-colors duration-200 relative ${
+            activeTab === "completed"
+              ? "text-[#8B0000]"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+          onClick={(e) => {
+            e.preventDefault();
+            onTabChange("completed");
+          }}
+        >
+          Completed
+          {activeTab === "completed" && (
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#8B0000]"></span>
+          )}
+        </a>
+
         {isAdmin && (
           <a
             href="#"

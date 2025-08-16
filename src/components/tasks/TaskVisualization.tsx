@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type Task } from '../../types/Task';
 import * as d3 from 'd3';
 
@@ -10,10 +10,11 @@ interface TaskVisualizationProps {
 
 const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualizationProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [simulationComplete, setSimulationComplete] = useState(false);
 
   // Calculate remaining effort (1 - percent_completed) * effort
   const getRemainingEffort = (task: Task): number => {
-    return (1 - task.percent_completed) * task.effort;
+    return (1 - task.percent_completed / 100) * task.effort;
   };
 
   // Calculate urgency based on due date (closer = more urgent)
@@ -58,6 +59,9 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
   };
 
   useEffect(() => {
+    // Reset simulation state when tasks or selectedTaskId changes
+    setSimulationComplete(false);
+
     if (!svgRef.current || tasks.length === 0) return;
 
     // Clear previous visualization
@@ -149,7 +153,7 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
 
     // Add tooltips
     taskGroups.append('title')
-      .text(d => `${d.title} (${Math.round(d.percent_completed * 100)}% complete)`);
+      .text(d => `${d.title} (${Math.round(d.percent_completed)}% complete)`);
 
     // Add a boundary force to keep nodes within the visible area
     simulation.force('x', d3.forceX(width / 2).strength(0.1));
@@ -173,6 +177,7 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
     // This removes any force application after the initial layout
     setTimeout(() => {
       simulation.stop();
+      setSimulationComplete(true);
     }, 2000);
 
     // Cleanup
@@ -183,9 +188,14 @@ const TaskVisualization = ({ tasks, onTaskSelect, selectedTaskId }: TaskVisualiz
 
   return (
     <div className="w-full h-full">
+      {!simulationComplete && tasks.length > 0 && (
+        <div className="flex justify-center items-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#8B0000]"></div>
+        </div>
+      )}
       <svg 
         ref={svgRef} 
-        className="w-full h-full"
+        className={`w-full h-full ${!simulationComplete ? 'invisible' : ''}`}
         style={{ minHeight: '300px' }}
       />
     </div>

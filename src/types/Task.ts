@@ -10,4 +10,5 @@ export interface Task {
   effort: number;
   percent_completed: number;
   last_completed: string;
+  completed_at?: string | null;
 }

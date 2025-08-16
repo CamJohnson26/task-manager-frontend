@@ -57,10 +57,17 @@ const EditTaskModal = ({ isOpen, onClose, onTaskUpdated, task }: EditTaskModalPr
     status: string;
     effort: number;
     percent_completed: number;
+    completed_at?: string | null;
   }) => {
     console.log('EditTaskModal handleSubmit called with data:', taskData);
     try {
-      const result = await updateTask(task.id, taskData);
+      // Include the completed_at field from the original task if it exists
+      const updatedTaskData = {
+        ...taskData,
+        completed_at: task.completed_at
+      };
+      console.log('Sending updated task data with completed_at:', updatedTaskData);
+      const result = await updateTask(task.id, updatedTaskData);
       console.log('Update task result:', result);
       if (result) {
         onTaskUpdated();

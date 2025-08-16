@@ -7,12 +7,15 @@ import TaskVisualization from "./TaskVisualization";
 import { type Task } from "../../types/Task";
 
 const Tasks = () => {
-  const { tasks, loading, error, refetch } = useGetTasks();
+  const { tasks: allTasks, loading, error, refetch } = useGetTasks();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'visualization'>('list');
+
+  // Filter out completed tasks
+  const tasks = allTasks.filter(task => task.status.toLowerCase() !== 'completed');
 
   const handleTaskSelect = (task: Task) => {
     setSelectedTask(task);

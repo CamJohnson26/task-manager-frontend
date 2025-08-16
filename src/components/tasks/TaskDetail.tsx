@@ -35,9 +35,15 @@ const TaskDetail = ({ task, onClose, onEdit, onDelete, isOpen, onTaskUpdated }: 
     status: string;
     effort: number;
     percent_completed: number;
+    completed_at?: string | null;
   }) => {
     try {
-      const result = await updateTask(task.id, taskData);
+      // Include the completed_at field from the original task if it exists
+      const updatedTaskData = {
+        ...taskData,
+        completed_at: task.completed_at
+      };
+      const result = await updateTask(task.id, updatedTaskData);
       if (result) {
         if (onTaskUpdated) {
           onTaskUpdated();
@@ -153,10 +159,10 @@ const TaskDetail = ({ task, onClose, onEdit, onDelete, isOpen, onTaskUpdated }: 
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div 
                       className="bg-[#8B0000] h-2.5 rounded-full" 
-                      style={{ width: `${Math.round(task.percent_completed * 100)}%` }}
+                      style={{ width: `${Math.round(task.percent_completed)}%` }}
                     ></div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{Math.round(task.percent_completed * 100)}%</p>
+                  <p className="text-xs text-gray-500 mt-1">{Math.round(task.percent_completed)}%</p>
                 </div>
               </div>
 

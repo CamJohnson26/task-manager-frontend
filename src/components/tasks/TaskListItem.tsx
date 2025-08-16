@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { type Task } from "../../types/Task";
 import TaskForm from "./TaskForm";
 import { useUpdateTask } from "../../taskManagerApi/useUpdateTask";
+import { useCompleteTask } from "../../taskManagerApi/useCompleteTask";
 
 interface TaskListItemProps {
   task: Task;
@@ -14,6 +15,7 @@ interface TaskListItemProps {
 const TaskListItem = ({ task, onTaskSelect, isSelected, onTaskUpdated, onDeleteTask }: TaskListItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { updateTask, loading: updateLoading } = useUpdateTask();
+  const { completeTask, loading: completeLoading } = useCompleteTask();
 
   // Automatically set edit mode when task is selected
   useEffect(() => {
@@ -42,15 +44,32 @@ const TaskListItem = ({ task, onTaskSelect, isSelected, onTaskUpdated, onDeleteT
     status: string;
     effort: number;
     percent_completed: number;
+    completed_at?: string | null;
   }) => {
     try {
-      const result = await updateTask(task.id, taskData);
+      // Include the completed_at field from the original task if it exists
+      const updatedTaskData = {
+        ...taskData,
+        completed_at: task.completed_at
+      };
+      const result = await updateTask(task.id, updatedTaskData);
       if (result) {
         onTaskUpdated();
         setIsEditing(false);
       }
     } catch (error) {
       console.error('Error updating task:', error);
+    }
+  };
+
+  const handleCompleteTask = async () => {
+    try {
+      const result = await completeTask(task.id);
+      if (result) {
+        onTaskUpdated();
+      }
+    } catch (error) {
+      console.error('Error completing task:', error);
     }
   };
 
@@ -117,7 +136,22 @@ const TaskListItem = ({ task, onTaskSelect, isSelected, onTaskUpdated, onDeleteT
         <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
           <span>Priority: {getPriorityLabel(task.priority)}</span>
           <div className="flex items-center space-x-3">
-            <span>{Math.round(task.percent_completed * 100)}% complete</span>
+            <span>{Math.round(task.percent_completed)}% complete</span>
+            {task.status.toLowerCase() !== 'completed' && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent task selection
+                  handleCompleteTask();
+                }}
+                className="text-green-600 hover:text-green-800 focus:outline-none"
+                aria-label="Complete task"
+                disabled={completeLoading}
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation(); // Prevent task selection

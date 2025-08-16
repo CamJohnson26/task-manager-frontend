@@ -39,7 +39,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
   const [priority, setPriority] = useState(initialData?.priority || 2); // Medium priority by default
   const [status, setStatus] = useState(initialData?.status || "pending");
   const [effort, setEffort] = useState(initialData?.effort || 1);
-  const [percentCompleted, setPercentCompleted] = useState(initialData ? Math.round(initialData.percent_completed * 100) : 0);
+  const [percentCompleted, setPercentCompleted] = useState(initialData ? Math.round(initialData.percent_completed) : 0);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Update form when initialData changes
@@ -70,7 +70,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
       setPriority(initialData.priority);
       setStatus(initialData.status);
       setEffort(initialData.effort);
-      setPercentCompleted(Math.round(initialData.percent_completed * 100));
+      setPercentCompleted(Math.round(initialData.percent_completed));
     }
   }, [initialData]);
 
@@ -111,7 +111,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
       priority,
       status,
       effort,
-      percent_completed: percentCompleted / 100,
+      percent_completed: percentCompleted,
     };
 
     console.log('Submitting task data', taskData);
@@ -304,7 +304,7 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
               priority,
               status,
               effort,
-              percent_completed: percentCompleted / 100,
+              percent_completed: percentCompleted,
             };
 
             console.log('Manually submitting task data', taskData);
