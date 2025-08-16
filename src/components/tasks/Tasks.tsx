@@ -17,10 +17,6 @@ const Tasks = () => {
   // Filter out completed tasks
   const tasks = allTasks.filter(task => task.status.toLowerCase() !== 'completed');
 
-  const handleTaskSelect = (task: Task) => {
-    setSelectedTask(task);
-  };
-
   const handleOpenNewTaskModal = () => {
     setIsNewTaskModalOpen(true);
   };
@@ -56,10 +52,6 @@ const Tasks = () => {
     refetch();
   }, [refetch]);
 
-  const toggleViewMode = () => {
-    setViewMode(prev => prev === 'list' ? 'visualization' : 'list');
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
@@ -87,7 +79,7 @@ const Tasks = () => {
           <div className="h-[300px] md:h-[calc(100vh-260px)] md:flex-grow">
             <TaskVisualization
               tasks={tasks}
-              onTaskSelect={handleTaskSelect}
+              onTaskSelect={setSelectedTask}
               selectedTaskId={selectedTask?.id || null}
             />
           </div>
@@ -102,7 +94,7 @@ const Tasks = () => {
           <div className="h-[calc(100vh-260px)] md:overflow-y-auto">
             <TaskList 
               tasks={tasks} 
-              onTaskSelect={handleTaskSelect} 
+              onTaskSelect={setSelectedTask}
               selectedTaskId={selectedTask?.id || null}
               onTaskUpdated={handleTaskUpdated}
               onDeleteTask={handleDeleteTask}

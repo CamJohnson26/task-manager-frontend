@@ -26,8 +26,8 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
     const daysUntilDue = Math.max(0, Math.floor((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
 
     // Inverse relationship: fewer days = higher urgency
-    // Max urgency (1) if due today or overdue, min urgency (0.1) if due in 30+ days
-    return Math.max(0.1, Math.min(1, 1 - (daysUntilDue / 30)));
+    // Max urgency (1) if due today or overdue, min urgency (0) if due in 30+ days
+    return Math.max(0, Math.min(1, 1 - (daysUntilDue / 30)));
   };
 
   // Calculate circle size based on remaining effort and urgency
@@ -41,10 +41,10 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
 
     // Increase size based on urgency (up to 100% larger for most urgent tasks)
     // Also factor in priority (higher priority = larger)
-    const urgencyFactor = urgency * 1.0; // Doubled from 0.5 to 1.0
-    const priorityFactor = (priority - 1) / 3 * 0.5; // Additional 0-50% based on priority
+    const urgencyFactor = urgency * 2.0; // Doubled twice from 0.5 to 2.0
+    const priorityFactor = (priority - 1) / 3 * 0.5; // Adjust priority by urgency
 
-    return baseSize * (1 + urgencyFactor + priorityFactor);
+    return (baseSize * (1 + priorityFactor)) * urgencyFactor;
   };
 
   // Get opacity based on priority (higher priority = more opaque)

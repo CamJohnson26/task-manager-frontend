@@ -21,7 +21,7 @@ interface TaskFormProps {
 const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'create' }: TaskFormProps) => {
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
-  const [type, setType] = useState(initialData?.type || "task");
+  const [type, setType] = useState(initialData?.type || "individual");
   // Parse and format the due date for the initial state
   const [dueDate, setDueDate] = useState(() => {
     if (initialData?.due_date) {
@@ -177,10 +177,12 @@ const TaskForm = ({ onSubmit, onCancel, isSubmitting, initialData, mode = 'creat
             onChange={(e) => setType(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#8B0000]"
           >
-            <option value="task">Task</option>
-            <option value="bug">Bug</option>
-            <option value="feature">Feature</option>
-            <option value="improvement">Improvement</option>
+            <option value="individual">Individual</option>
+            <option value="recurring_interval">Recurring Interval</option>
+            <option value="recurring_daily">Recurring Daily</option>
+            <option value="recurring_weekly">Recurring Weekly</option>
+            <option value="recurring_monthly">Recurring Monthly</option>
+            <option value="recurring_yearly">Recurring Yearly</option>
           </select>
         </div>
 

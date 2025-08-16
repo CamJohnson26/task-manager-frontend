@@ -142,7 +142,7 @@ const TaskDetail = ({ task, onClose, onEdit, onDelete, isOpen, onTaskUpdated }: 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-1">Type</h3>
-                  <p className="text-gray-700">{task.type || 'Not specified'}</p>
+                  <p className="text-gray-700">{getTypeLabel(task.type)}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-1">Due Date</h3>
@@ -208,6 +208,25 @@ const getPriorityLabel = (priority: number): string => {
       return 'Urgent';
     default:
       return 'Normal';
+  }
+};
+
+const getTypeLabel = (type: string): string => {
+  switch (type) {
+    case 'individual':
+      return 'Individual';
+    case 'recurring_interval':
+      return 'Recurring Interval';
+    case 'recurring_daily':
+      return 'Recurring Daily';
+    case 'recurring_weekly':
+      return 'Recurring Weekly';
+    case 'recurring_monthly':
+      return 'Recurring Monthly';
+    case 'recurring_yearly':
+      return 'Recurring Yearly';
+    default:
+      return type || 'Not specified';
   }
 };
 
