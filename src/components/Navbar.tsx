@@ -16,7 +16,10 @@ const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
     <header className="bg-white p-4 rounded-lg shadow-md mb-6">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
         <div className="mb-4 sm:mb-0">
-          <h1 className="text-2xl font-bold text-gray-800">Task Manager</h1>
+          <div className="flex flex-row justify-between items-center">
+            <img width={48} height={48} src={"./icon.svg"} alt={"logo"}></img>
+            <h1 className="text-2xl font-bold text-gray-800 ml-1">Task Manager</h1>
+          </div>
           {user?.nickname && (
             <p className="text-gray-600">Welcome, {user.nickname}!</p>
           )}
