@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { type Task } from '../../types/Task';
 import * as d3 from 'd3';
+import { getCircleSize } from '../../utils/taskUtils';
 
 interface TaskVisualizationProps {
   tasks: Task[];
@@ -11,41 +12,6 @@ interface TaskVisualizationProps {
 const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [simulationComplete, setSimulationComplete] = useState(false);
-
-  // Calculate remaining effort (1 - percent_completed) * effort
-  const getRemainingEffort = (task: Task): number => {
-    return (1 - task.percent_completed / 100) * task.effort;
-  };
-
-  // Calculate urgency based on due date (closer = more urgent)
-  const getUrgency = (task: Task): number => {
-    if (!task.due_date) return 0;
-
-    const now = new Date();
-    const dueDate = new Date(task.due_date);
-    const daysUntilDue = Math.max(0, Math.floor((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
-
-    // Inverse relationship: fewer days = higher urgency
-    // Max urgency (1) if due today or overdue, min urgency (0) if due in 30+ days
-    return Math.max(0, Math.min(1, 1 - (daysUntilDue / 30)));
-  };
-
-  // Calculate circle size based on remaining effort and urgency
-  const getCircleSize = (task: Task): number => {
-    const remainingEffort = getRemainingEffort(task);
-    const urgency = getUrgency(task);
-    const priority = task.priority;
-
-    // Base size between 10-50 based on remaining effort (1-10)
-    const baseSize = 10 + (remainingEffort * 4);
-
-    // Increase size based on urgency (up to 100% larger for most urgent tasks)
-    // Also factor in priority (higher priority = larger)
-    const urgencyFactor = urgency * 2.0; // Doubled twice from 0.5 to 2.0
-    const priorityFactor = (priority - 1) / 3 * 0.5; // Adjust priority by urgency
-
-    return (baseSize * (1 + priorityFactor)) * urgencyFactor;
-  };
 
   // Get opacity based on priority (higher priority = more opaque)
   const getOpacity = (task: Task): number => {
@@ -87,7 +53,8 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
       .data(tasks)
       .enter()
       .append('g')
-      .style('cursor', 'pointer')
+        .attr('opacity', d => getCircleSize(d) === 0 ? 0 : getOpacity(d))
+        .style('cursor', 'pointer')
       .on('click', (event, d) => {
         // Just select the task without applying any force
         onTaskSelect(d);
@@ -97,7 +64,6 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
     taskGroups.append('circle')
       .attr('r', d => getCircleSize(d))
       .attr('fill', d => getColor(d))
-      .attr('opacity', d => getOpacity(d))
       .attr('stroke', d => 'none')
       .attr('stroke-width', d => d.id === 1);
 

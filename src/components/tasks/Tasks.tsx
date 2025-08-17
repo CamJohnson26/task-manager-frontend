@@ -1,10 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useGetTasks } from "../../taskManagerApi/useGetTasks";
 import TaskList from "./TaskList";
 import NewTaskModal from "./NewTaskModal";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import TaskVisualization from "./TaskVisualization";
 import { type Task } from "../../types/Task";
+import { getCircleSize } from "../../utils/taskUtils";
 
 const Tasks = () => {
   const { tasks: allTasks, loading, error, refetch } = useGetTasks();
@@ -15,7 +16,16 @@ const Tasks = () => {
   const [viewMode, setViewMode] = useState<'list' | 'visualization'>('list');
 
   // Filter out completed tasks
-  const tasks = allTasks.filter(task => task.status.toLowerCase() !== 'completed');
+  const filteredTasks = allTasks.filter(task => task.status.toLowerCase() !== 'completed');
+
+  // Sort tasks by circle size (largest to smallest)
+  const sortedTasks = useMemo(() => {
+    return [...filteredTasks].sort((a, b) => {
+      const sizeA = getCircleSize(a);
+      const sizeB = getCircleSize(b);
+      return sizeB - sizeA; // Descending order (largest first)
+    });
+  }, [filteredTasks]);
 
   const handleOpenNewTaskModal = () => {
     setIsNewTaskModalOpen(true);
@@ -78,7 +88,7 @@ const Tasks = () => {
           </div>
           <div className="h-[300px] md:h-[calc(100vh-260px)] md:flex-grow">
             <TaskVisualization
-              tasks={tasks}
+              tasks={filteredTasks}
               onTaskSelect={setSelectedTask}
               selectedTaskId={selectedTask?.id || null}
             />
@@ -93,7 +103,7 @@ const Tasks = () => {
 
           <div className="h-[calc(100vh-260px)] md:overflow-y-auto">
             <TaskList 
-              tasks={tasks} 
+              tasks={sortedTasks} 
               onTaskSelect={setSelectedTask}
               selectedTaskId={selectedTask?.id || null}
               onTaskUpdated={handleTaskUpdated}
