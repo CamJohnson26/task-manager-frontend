@@ -4,6 +4,7 @@ import Tasks from "./tasks/Tasks";
 import CompletedTasks from "./tasks/CompletedTasks";
 import Admin from "./Admin";
 import Navbar from "./Navbar";
+import { LogoutButton } from "../auth/LogoutButton";
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState("tasks");
@@ -13,14 +14,21 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-100 p-4 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto flex-grow">
         <Navbar activeTab={activeTab} onTabChange={handleTabChange} />
 
         {activeTab === "tasks" && <Tasks />}
         {activeTab === "completed" && <CompletedTasks />}
         {activeTab === "admin" && <Admin />}
       </div>
+
+      <footer className="w-full max-w-7xl mx-auto mt-6 bg-white p-4 rounded-lg shadow-md">
+        <div className="flex justify-between items-center">
+          <p className="text-gray-600">© 2025 Task Manager</p>
+          <LogoutButton />
+        </div>
+      </footer>
     </div>
   );
 };

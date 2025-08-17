@@ -9,7 +9,6 @@ interface NavbarProps {
 }
 
 const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
-  const { user } = useAuth0();
   const { user: meUser } = useGetMe();
   const isAdmin = meUser?.[3] === true;
   return (
@@ -20,11 +19,7 @@ const Navbar = ({ activeTab, onTabChange }: NavbarProps) => {
             <img width={48} height={48} src={"./icon.svg"} alt={"logo"}></img>
             <h1 className="text-2xl font-bold text-gray-800 ml-1">Task Manager</h1>
           </div>
-          {user?.nickname && (
-            <p className="text-gray-600">Welcome, {user.nickname}!</p>
-          )}
         </div>
-        <LogoutButton />
       </div>
 
       <nav className="flex border-b border-gray-200">

@@ -21,6 +21,9 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
 
   // Make all tasks red as per requirements
   const getColor = (task: Task): string => {
+    if (task.status === 'in progress') {
+      return '#975a16'
+    }
     return '#8B0000'; // dark red (matching the app's theme)
   };
 
