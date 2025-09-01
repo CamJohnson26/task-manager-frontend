@@ -43,11 +43,13 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
     const width = svgRef.current.clientWidth;
     const height = svgRef.current.clientHeight;
 
+    const circleScalingFactor = width >= 700 ? 1 : 0.6;
+
     // Create force simulation with parameters to prevent overlapping
     const simulation = d3.forceSimulation(tasks as d3.SimulationNodeDatum[])
       .force('charge', d3.forceManyBody().strength(-100)) // Increased repulsion force to push nodes apart
       .force('center', d3.forceCenter(width / 2, height / 2).strength(0.15)) // Center attraction
-      .force('collision', d3.forceCollide().radius((d: any) => getCircleSize(d as Task) + 2).strength(1)) // Full collision radius plus padding
+      .force('collision', d3.forceCollide().radius((d: any) => getCircleSize(d as Task, circleScalingFactor) + 2).strength(1)) // Full collision radius plus padding
       .alphaDecay(0.01) // Slower decay to allow more time for collision resolution
       .velocityDecay(0.2); // Reduced velocity decay to allow nodes to move more freely
 
@@ -56,7 +58,7 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
       .data(tasks)
       .enter()
       .append('g')
-        .attr('opacity', d => getCircleSize(d) === 0 ? 0 : getOpacity(d))
+        .attr('opacity', d => getCircleSize(d, circleScalingFactor) === 0 ? 0 : getOpacity(d))
         .style('cursor', 'pointer')
       .on('click', (event, d) => {
         // Just select the task without applying any force
@@ -65,7 +67,7 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
 
     // Add circles to each group
     taskGroups.append('circle')
-      .attr('r', d => getCircleSize(d))
+      .attr('r', d => getCircleSize(d, circleScalingFactor))
       .attr('fill', d => getColor(d))
       .attr('stroke', d => 'none')
       .attr('stroke-width', d => d.id === 1);
@@ -73,11 +75,11 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
     // Add multi-line text labels to each group (up to 3 lines)
     taskGroups.each(function(d) {
       const group = d3.select(this);
-      const fontSize = Math.max(10, getCircleSize(d) / 3);
+      const fontSize = Math.max(10, getCircleSize(d, circleScalingFactor) / 3);
       const title = d.title;
 
       // Calculate how many characters can fit per line based on circle size
-      const charsPerLine = Math.max(8, Math.floor(getCircleSize(d) / (fontSize * 0.6)));
+      const charsPerLine = Math.max(8, Math.floor(getCircleSize(d, circleScalingFactor) / (fontSize * 0.6)));
 
       // Split text into words
       const words = title.split(/\s+/);
@@ -135,7 +137,7 @@ const TaskVisualization = ({ tasks, onTaskSelect }: TaskVisualizationProps) => {
     simulation.on('tick', () => {
       // Apply additional boundary constraints to ensure no overflow
       tasks.forEach((d: any) => {
-        const radius = getCircleSize(d as Task);
+        const radius = getCircleSize(d as Task, circleScalingFactor);
         d.x = Math.max(radius, Math.min(width - radius, d.x));
         d.y = Math.max(radius, Math.min(height - radius, d.y));
       });

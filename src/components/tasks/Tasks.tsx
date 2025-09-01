@@ -21,8 +21,8 @@ const Tasks = () => {
   // Sort tasks by circle size (largest to smallest)
   const sortedTasks = useMemo(() => {
     return [...filteredTasks].sort((a, b) => {
-      const sizeA = getCircleSize(a);
-      const sizeB = getCircleSize(b);
+      const sizeA = getCircleSize(a, 1);
+      const sizeB = getCircleSize(b, 1);
       return sizeB - sizeA; // Descending order (largest first)
     });
   }, [filteredTasks]);

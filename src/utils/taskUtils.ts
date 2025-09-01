@@ -19,7 +19,10 @@ export const getUrgency = (task: Task): number => {
 };
 
 // Calculate circle size based on remaining effort and urgency
-export const getCircleSize = (task: Task): number => {
+// Scaling factor is used to adjust the size of the circle based on the size
+// of the screen
+//
+export const getCircleSize = (task: Task, scalingFactor: number): number => {
   const remainingEffort = getRemainingEffort(task);
   const urgency = getUrgency(task);
   const priority = task.priority;
@@ -32,5 +35,5 @@ export const getCircleSize = (task: Task): number => {
   const urgencyFactor = urgency * 2.0; // Doubled twice from 0.5 to 2.0
   const priorityFactor = (priority - 1) / 3 * 0.5; // Adjust priority by urgency
 
-  return (baseSize * (1 + priorityFactor)) * urgencyFactor;
+  return (baseSize * (1 + priorityFactor)) * urgencyFactor * scalingFactor;
 };
